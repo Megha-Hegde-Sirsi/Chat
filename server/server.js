@@ -122,3 +122,8 @@ io.on('connection', (socket) => {
 server.listen(port, () => {
   console.log(`server is listening to port ${port}`);
 });
+
+// http.listen(process.env.PORT || 3000, function(){
+//   console.log('listening on', http.address().port);
+// });
+
