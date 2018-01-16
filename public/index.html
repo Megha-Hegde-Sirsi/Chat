@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>Join | ChatApp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <link rel="stylesheet" href="/css/label.min.css">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body class="centered-form">
+
+  <div class="room__sidebar">
+    <div></div>
+    <h3 id="available-room" class="inactiveLink">Open rooms&nbsp;
+      <span></span>
+    </h3>
+    <div id="rooms"></div>
+  </div>
+  <div class="centered-form__form">
+    <form id="chat-login">
+      <div class="form-field">
+        <h3>Join a Chat</h3>
+      </div>
+      <div class="form-field">
+        <label>Display name</label>
+        <input type="text" name="name" autofocus/>
+      </div>
+      <div class="form-field">
+        <label>Room name/ Active User Name</label>
+        <input type="text" name="room" id="room" />
+      </div>
+      <div class="form-field">
+        <button id="joinBtn">Join</button>
+
+      </div>
+      <div class="form-field">
+        <button id="privateBtn">Private chat</button>
+      </div>
+    </form>
+    <!-- </form>
+    <form action="/privateChat.html">
+    <div class="form-field">
+      <button id="pc">Private Chat</button>
+    </div></form> -->
+  </div>
+  <div class="user__sidebar">
+    <h3 id="available-users" class="inactiveLink"> Active Users&nbsp;
+      <span></span>
+    </h3>
+    <div id="users"></div>
+  </div>
+  <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+  <script type="text/javascript" src="/js/libs/jquery-3.2.1.min.js"></script>
+  <script src="/js/index.js"></script>
+</body>
+
+</html>
