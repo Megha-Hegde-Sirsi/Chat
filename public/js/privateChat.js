@@ -36,6 +36,7 @@ socket.on('disconnect', function () {
     window.location.href = '/';
 });
 
+//NEW MESSAGE LISTENER
 socket.on('newMessage', function (message) {
     let formattedTime = moment(message.createdAt).format('h:mm a');
     let template = $('#message-template').html();
@@ -48,6 +49,7 @@ socket.on('newMessage', function (message) {
     scrollToBottom(); 
 });
 
+//GEOLOCATION LISTENER
 socket.on('newLocationMessage', function (message) {
     let formattedTime = moment(message.createdAt).format('h:mm a');
     let template = $('#location-message-template').html();
@@ -61,10 +63,11 @@ socket.on('newLocationMessage', function (message) {
 });
 
 //SEND BUTTON ACTION
-$('#message-form').on('submit', function (e) {//event argument
+$('#message-form-1').on('submit', function (e) {//event argument
 // $('#message-form').submit(function(e){
     e.preventDefault();
     let messageTextbox = $('[name=message]')
+    console.log(messageTextbox);
     socket.emit('createMessage', {
         text: messageTextbox.val()
     }, function () {

@@ -66,6 +66,7 @@ socket.on('updateUserList', function (users) {
   socket.emit('keepCurrentUserMark');
 });
 
+//NUMBER OF PEOPLE ONLINE
 socket.on('getUserListIndex', function (users) {
   let ol = $('<ol></ol>');
   users.forEach(function (user) {
@@ -74,6 +75,8 @@ socket.on('getUserListIndex', function (users) {
   });
 
 });
+
+//DISPLAY CURRENT USER
 socket.on('showCurrentUser', function (userdata) {
   let currentUser = userdata.currentUser;
   let usernames = userdata.allUsernames;
@@ -94,6 +97,7 @@ socket.on('showCurrentUser', function (userdata) {
   }
 });
 
+//NEW MESSAGE LISTENER
 socket.on('newMessage', function (message) {
   let formattedTime = moment(message.createdAt).format('h:mm a');
   let template = $('#message-template').html();
@@ -107,6 +111,7 @@ socket.on('newMessage', function (message) {
   scrollToBottom();
 });
 
+//GEOLOCATION LISTENER
 socket.on('newLocationMessage', function (message) {
   let formattedTime = moment(message.createdAt).format('h:mm a');
   let template = $('#location-message-template').html();
