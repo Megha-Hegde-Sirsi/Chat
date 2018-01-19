@@ -73,7 +73,7 @@ io.on('connection', (socket) => {
         socket.emit('newMessage', generateMessage('Admin', `Your chat invitation has been succesfully sent to ${params.room}`));
         socket.emit('newMessage', generateMessage('Admin', 'Your invitation is still pending'));
       } else {
-        users.addUser(socket.id, params.name, params.from);
+        users.addUser(socket.id, params.name, params.room+'new');
         let user2 = users.getUserId(params.room, params.name);
         console.log(user2);
         socket.emit('newMessage', generateMessage('Admin', 'Welcome to chat app'));
@@ -94,10 +94,43 @@ io.on('connection', (socket) => {
     callback();
   });
 
+  socket.on('createPrivateMessage', (message, callback) => {
+    let user = users.getUser(socket.id);
+    console.log('sender', user);
+    let user2 = users.getUserId(user.name, message.room);
+    console.log('receiver', user2);
+    if (user.id === user2.id) {
+      let user2 = users.getNewId(user.name);
+      console.log('rcvr', user2);
+      io.to(user2).emit('newMessage', generateMessage(user.name, message.text));
+      socket.emit('newMessage', generateMessage(user.name, message.text));
+      callback();
+    } else {
+      io.to(user2.id).emit('newMessage', generateMessage(user.name, message.text));
+      socket.emit('newMessage', generateMessage(user.name, message.text));
+      callback();
+    }
+  });
+
   socket.on('createLocationMessage', (coords) => {
     let user = users.getUser(socket.id);
     if (user) {
-      io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude, user.color));
+      io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
+    }
+  });
+
+  socket.on('createPrivateLocationMessage', (coords, to) => {
+    let user = users.getUser(socket.id);
+    console.log('geosender', user);
+    let user2= users.getUserId(user.name,to);
+    console.log('georeceiver', user2);
+    if (user.id === user2.id) {
+      user2= users.getNewSocket(to);
+      console.log('newgeo', user2);
+      io.to(user2).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
+      socket.emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));   
+    }else{
+      io.to(user2.id).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
     }
   });
 

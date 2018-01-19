@@ -1,5 +1,6 @@
 let socket = io();
-// const socket = require('socket.io');
+let from;
+let to;
 
 function scrollToBottom() {
     //Selectors
@@ -46,7 +47,7 @@ socket.on('newMessage', function (message) {
         createdAt: formattedTime
     });
     $('#messages').append(html);
-    scrollToBottom(); 
+    scrollToBottom();
 });
 
 //GEOLOCATION LISTENER
@@ -63,36 +64,51 @@ socket.on('newLocationMessage', function (message) {
 });
 
 //SEND BUTTON ACTION
-$('#message-form-1').on('submit', function (e) {//event argument
-// $('#message-form').submit(function(e){
-    e.preventDefault();
-    let messageTextbox = $('[name=message]')
-    console.log(messageTextbox);
-    socket.emit('createMessage', {
-        text: messageTextbox.val()
-    }, function () {
-        //acknowledgement
-        messageTextbox.val('');
-    });
-});
-
-//SEND LOCATION BUTTON ACTION
-let locationButton = $('#send-location');
-$('#send-location').on('click', function () {
-    if (!navigator.geolocation) {
-        return alert('Geolocation not supported by your browser');
-    } else {
-        locationButton.attr('disabled', 'disabled').text('Sending Location...');
-        navigator.geolocation.getCurrentPosition(function (position) {
-            locationButton.removeAttr('disabled').text('Send Location');
-            socket.emit('createLocationMessage', {
-                latitude: position.coords.latitude,
-                longitude: position.coords.longitude
-            });
+$(document).ready(function () {
+    console.log('Page loaded', $('#message-form-1'));
+    from = GetParameterValues('name');
+    to = GetParameterValues('room');
+    function GetParameterValues(param) {
+        var url = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for (var i = 0; i < url.length; i++) {
+            var urlparam = url[i].split('=');
+            if (urlparam[0] == param) {
+                // return urlparam[1];  
+                console.log('url item', urlparam[1]);
+                window.rcvr = urlparam[1];
+                console.log('global', window.rcvr);
+            }
         }
-            , function () {
-                locationButton.removeAttr('disabled').text('Send Location');
-                alert('Unable to fetch location');
-            });
     }
-});
+    $('#message-form-1').on('submit', function (e) {//event argument
+        // $('#message-form').submit(function(e){
+        e.preventDefault();
+        let messageTextbox = $('[name=message]')
+        console.log(messageTextbox);
+        socket.emit('createPrivateMessage', {
+            text: messageTextbox.val()
+        }, function () {
+            //acknowledgement
+            messageTextbox.val('');
+        });
+    });
+    $('#send-location').on('click', function () {
+        if (!navigator.geolocation) {
+            return alert('Geolocation not supported by your browser');
+        } else {
+            $('#send-location').attr('disabled', 'disabled').text('Sending Location...');
+            navigator.geolocation.getCurrentPosition(function (position) {
+                $('#send-location').removeAttr('disabled').text('Send Location');
+                socket.emit('createPrivateLocationMessage', {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                }, window.rcvr );
+            }
+                , function () {
+                    locationButton.removeAttr('disabled').text('Send Location');
+                    alert('Unable to fetch location');
+                });
+        }
+    });
+
+})

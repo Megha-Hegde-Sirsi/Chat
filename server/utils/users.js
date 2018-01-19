@@ -59,11 +59,15 @@ class Users {
   }
 
   getUserId(name, room) {
-    return this.users.filter((user) => user.name === name && user.room === room)[0];
+    return this.users.filter((user) => user.name === name && user.room === room+'new')[0];
   }
 
   getNewId(name) {
     return this.users.filter((user) => user.name === name)[0].id;
+  }
+
+  getNewSocket(room) {
+    return this.users.filter((user) => user.room === room+'new')[0].id;
   }
 }
 
