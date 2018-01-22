@@ -59,15 +59,31 @@ class Users {
   }
 
   getUserId(name, room) {
-    return this.users.filter((user) => user.name === name && user.room === room+'new')[0];
+    return this.users.filter((user) => (user.name === name && user.room === room + 'new'))[0];
+  }
+
+  getNewIdPrivate(name, room) {
+    return this.users.filter((user) => (user.name === name && user.room === room))[0];
+  }
+
+  getId(room) {
+    return this.users.filter((user) => (user.room === room + 'new'))[0];
   }
 
   getNewId(name) {
     return this.users.filter((user) => user.name === name)[0].id;
   }
 
+  getNew(room) {
+    return this.users.filter((user) => user.name === room )[0];
+  }
+
+  getNewIdId(room) {
+    return this.users.filter((user) => user.room === room)[0];
+  }
+
   getNewSocket(room) {
-    return this.users.filter((user) => user.room === room+'new')[0].id;
+    return this.users.filter((user) => user.room === room + 'new')[0].id;
   }
 }
 

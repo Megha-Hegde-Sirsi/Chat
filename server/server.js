@@ -60,7 +60,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('privateChat', (params, callback) => {
-    let user1 = users.getUserId(params.name, params.room);
+    let user1 = users.getNewIdPrivate(params.name, params.room);
     let user2 = users.getUserId(params.room, params.name);
     console.log(user1, user2);
     try {
@@ -71,13 +71,13 @@ io.on('connection', (socket) => {
         io.to(user2).emit('privateInvitation', privateLink(params.name, params.room));
         socket.emit('newMessage', generateMessage('Admin', 'Welcome to chat app'));
         socket.emit('newMessage', generateMessage('Admin', `Your chat invitation has been succesfully sent to ${params.room}`));
-        socket.emit('newMessage', generateMessage('Admin', 'Your invitation is still pending'));
+        // socket.emit('newMessage', generateMessage('Admin', 'Your invitation is still pending'));
       } else {
-        users.addUser(socket.id, params.name, params.room+'new');
+        users.addUser(socket.id, params.name, params.room + 'new');
         let user2 = users.getUserId(params.room, params.name);
         console.log(user2);
         socket.emit('newMessage', generateMessage('Admin', 'Welcome to chat app'));
-        io.to(user2).emit('newMessage', generateMessage('Admin', `Your invitation has been accepted by ${params.name}`));
+        // io.to(user2).emit('newMessage', generateMessage('Admin', `Your invitation has been accepted by ${params.name}`));
       }
     } catch (err) {
       socket.emit('newMessage', 'An error has occured');
@@ -86,23 +86,27 @@ io.on('connection', (socket) => {
   });
 
   socket.on('createMessage', (message, callback) => {
+    // console.log(message, message.room)
     let user = users.getUser(socket.id);
     if (user && isRealString(message.text)) {
       message.text = linkifyHtml(message.text, { defaultProtocol: 'https' });
-      io.to(user.room).emit('newMessage', generateMessage(user.name, message.text, user.color));
+      io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
     }
     callback();
   });
 
   socket.on('createPrivateMessage', (message, callback) => {
     let user = users.getUser(socket.id);
+    console.log(message, socket.id, user.room);
     console.log('sender', user);
-    let user2 = users.getUserId(user.name, message.room);
+    let user2 = users.getNewIdId(user.room);
+    // window.temp=user2.id;
     console.log('receiver', user2);
     if (user.id === user2.id) {
-      let user2 = users.getNewId(user.name);
+      // let temp = user2.id;
+      let user2 = users.getNew(user.name);
       console.log('rcvr', user2);
-      io.to(user2).emit('newMessage', generateMessage(user.name, message.text));
+      io.to(user2.id).emit('newMessage', generateMessage(user.name, message.text));
       socket.emit('newMessage', generateMessage(user.name, message.text));
       callback();
     } else {
@@ -112,28 +116,28 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('createPrivateLocationMessage', (coords, to) => {
+    let user = users.getUser(socket.id);
+    console.log('geosender', user);
+    let user2 = users.getUserId(user.name, to);
+    console.log('georeceiver', user2);
+    if (user.id === user2.id) {
+      user2 = users.getNewSocket(to);
+      console.log('newgeo', user2);
+      io.to(user2).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
+      socket.emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
+    } else {
+      io.to(user2.id).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
+      socket.emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
+    }
+  });
+
   socket.on('createLocationMessage', (coords) => {
     let user = users.getUser(socket.id);
     if (user) {
       io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
     }
   });
-
-  socket.on('createPrivateLocationMessage', (coords, to) => {
-    let user = users.getUser(socket.id);
-    console.log('geosender', user);
-    let user2= users.getUserId(user.name,to);
-    console.log('georeceiver', user2);
-    if (user.id === user2.id) {
-      user2= users.getNewSocket(to);
-      console.log('newgeo', user2);
-      io.to(user2).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
-      socket.emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));   
-    }else{
-      io.to(user2.id).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
-    }
-  });
-
   socket.on('disconnect', () => {
     console.log('User disconnected');
     let user = users.removeUser(socket.id);
@@ -147,7 +151,7 @@ io.on('connection', (socket) => {
         }
       });
       io.to(user.room).emit('updateUserList', users.getUserList(user.room));
-      io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left`, 'red'));
+      io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left`));
     }
   });
 });
@@ -156,7 +160,4 @@ server.listen(port, () => {
   console.log(`server is listening to port ${port}`);
 });
 
-// http.listen(process.env.PORT || 3000, function(){
-//   console.log('listening on', http.address().port);
-// });
 

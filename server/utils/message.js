@@ -4,7 +4,8 @@ var generateMessage = (from, text) => {
   return {
     from,
     text,
-    createdAt: moment().valueOf()
+    createdAt: moment().valueOf(),
+    // to: socket.id
   };
 };
 
